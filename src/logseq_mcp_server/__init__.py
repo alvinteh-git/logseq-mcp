@@ -1,0 +1,1 @@
+"""Logseq MCP Server package."""

@@ -1,0 +1,1 @@
+"""Logseq core functionality package."""
