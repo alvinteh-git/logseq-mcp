@@ -1,0 +1,46 @@
+{
+  "test_cases": [
+    {
+      "name": "Test get_page with existing page",
+      "command": "get-page",
+      "args": ["Contents"],
+      "description": "Should return page data if Contents page exists"
+    },
+    {
+      "name": "Test get_page with non-existent page",
+      "command": "get-page", 
+      "args": ["NonExistentPageXYZ123"],
+      "description": "Should return null/None"
+    },
+    {
+      "name": "Test get_all_pages",
+      "command": "get-all-pages",
+      "args": ["--limit", "5"],
+      "description": "Should return a list of pages"
+    },
+    {
+      "name": "Test search",
+      "command": "search",
+      "args": ["test"],
+      "description": "Should return search results"
+    },
+    {
+      "name": "Test raw API call - getCurrentGraph",
+      "command": "raw",
+      "args": ["logseq.Editor.getCurrentGraph"],
+      "description": "Should return current graph info"
+    },
+    {
+      "name": "Test raw API call - getPage with args",
+      "command": "raw",
+      "args": ["logseq.Editor.getPage", "Contents"],
+      "description": "Should return page data using raw API"
+    }
+  ],
+  "notes": [
+    "Run individual tests with: python test_logseq.py <command> <args>",
+    "Run interactive mode with: python test_logseq.py interactive",
+    "Add --verbose flag for detailed logging",
+    "Logs are saved to logs/test-logseq-*.log"
+  ]
+}
