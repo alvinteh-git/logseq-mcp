@@ -11,7 +11,7 @@ from datetime import date, datetime
 def date_to_journal_format(input_date: str | date | datetime) -> str:
     """Convert a date to Logseq's journal page format.
 
-    Logseq uses a specific format for journal pages like "December 25th, 2023".
+    Logseq uses abbreviated month format for journal pages like "Dec 25th, 2023".
     This function converts various date inputs to that format.
 
     Args:
@@ -19,23 +19,23 @@ def date_to_journal_format(input_date: str | date | datetime) -> str:
             - ISO string: "2023-12-25"
             - Date string: "12/25/2023", "25-12-2023"
             - Python date or datetime object
-            - Already formatted: "December 25th, 2023"
+            - Already formatted: "Dec 25th, 2023"
 
     Returns:
-        Formatted journal page name (e.g., "December 25th, 2023")
+        Formatted journal page name (e.g., "Dec 25th, 2023")
 
     Raises:
         ValueError: If the date format cannot be parsed
 
     Examples:
         >>> date_to_journal_format("2023-12-25")
-        "December 25th, 2023"
+        "Dec 25th, 2023"
 
         >>> date_to_journal_format(datetime(2023, 12, 25))
-        "December 25th, 2023"
+        "Dec 25th, 2023"
 
-        >>> date_to_journal_format("December 25th, 2023")
-        "December 25th, 2023"
+        >>> date_to_journal_format("Dec 25th, 2023")
+        "Dec 25th, 2023"
     """
     # If already a date/datetime object
     if isinstance(input_date, datetime):
@@ -46,8 +46,8 @@ def date_to_journal_format(input_date: str | date | datetime) -> str:
         # Try to parse string input
         date_str = str(input_date).strip()
 
-        # Check if already in journal format
-        journal_pattern = r"^[A-Za-z]+ \d{1,2}(st|nd|rd|th), \d{4}$"
+        # Check if already in journal format (abbreviated month)
+        journal_pattern = r"^[A-Za-z]{3} \d{1,2}(st|nd|rd|th), \d{4}$"
         if re.match(journal_pattern, date_str):
             return date_str
 
@@ -84,15 +84,15 @@ def date_to_journal_format(input_date: str | date | datetime) -> str:
     else:
         suffix = {1: "st", 2: "nd", 3: "rd"}.get(day % 10, "th")
 
-    # Format: "December 25th, 2023"
-    return dt.strftime(f"%B {day}{suffix}, %Y")
+    # Format: "Dec 25th, 2023" (abbreviated month)
+    return dt.strftime(f"%b {day}{suffix}, %Y")
 
 
 def journal_format_to_date(journal_name: str) -> date:
     """Convert Logseq journal format back to a Python date object.
 
     Args:
-        journal_name: Journal page name (e.g., "December 25th, 2023")
+        journal_name: Journal page name (e.g., "Dec 25th, 2023")
 
     Returns:
         Python date object
@@ -101,7 +101,7 @@ def journal_format_to_date(journal_name: str) -> date:
         ValueError: If the format cannot be parsed
 
     Examples:
-        >>> journal_format_to_date("December 25th, 2023")
+        >>> journal_format_to_date("Dec 25th, 2023")
         datetime.date(2023, 12, 25)
     """
     import re
@@ -109,8 +109,8 @@ def journal_format_to_date(journal_name: str) -> date:
     # Remove ordinal suffixes
     cleaned = re.sub(r"(\d+)(st|nd|rd|th)", r"\1", journal_name)
 
-    # Parse the cleaned date
+    # Parse the cleaned date (abbreviated month format)
     try:
-        return datetime.strptime(cleaned, "%B %d, %Y").date()
+        return datetime.strptime(cleaned, "%b %d, %Y").date()
     except ValueError as e:
         raise ValueError(f"Cannot parse journal format: {journal_name}") from e

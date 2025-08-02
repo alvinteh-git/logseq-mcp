@@ -25,7 +25,7 @@ class TestGetJournalPageTool:
         # Mock response
         mock_page = {
             "uuid": "test-uuid-123",
-            "originalName": "December 25th, 2023",
+            "originalName": "Dec 25th, 2023",
             "journal?": True,
             "properties": {},
         }
@@ -47,23 +47,23 @@ class TestGetJournalPageTool:
         assert result["success"] is True
         assert result["page"] == mock_page
         assert result["blocks"] == mock_blocks
-        assert result["journal_name"] == "December 25th, 2023"
+        assert result["journal_name"] == "Dec 25th, 2023"
         
         # Verify the client was called with the converted journal name
-        mock_logseq_client.get_page.assert_called_once_with(name="December 25th, 2023")
+        mock_logseq_client.get_page.assert_called_once_with(name="Dec 25th, 2023")
         mock_logseq_client.get_page_blocks_tree.assert_called_once_with("test-uuid-123")
     
     @pytest.mark.asyncio
     async def test_get_journal_page_various_date_formats(self, mock_logseq_client):
         """Test journal page retrieval with various date formats."""
-        mock_page = {"uuid": "test-uuid", "originalName": "December 25th, 2023"}
+        mock_page = {"uuid": "test-uuid", "originalName": "Dec 25th, 2023"}
         mock_logseq_client.get_page.return_value = mock_page
         mock_logseq_client.get_page_blocks_tree.return_value = []
         
         test_cases = [
-            ("2023-12-25", "December 25th, 2023"),  # ISO format
-            ("12/25/2023", "December 25th, 2023"),  # US format
-            ("December 25th, 2023", "December 25th, 2023"),  # Already formatted
+            ("2023-12-25", "Dec 25th, 2023"),  # ISO format
+            ("12/25/2023", "Dec 25th, 2023"),  # US format
+            ("Dec 25th, 2023", "Dec 25th, 2023"),  # Already formatted
         ]
         
         with patch("logseq_mcp_server.server.logseq_client", mock_logseq_client):
@@ -83,12 +83,12 @@ class TestGetJournalPageTool:
         
         assert result["success"] is False
         assert result["page"] is None
-        assert result["journal_name"] == "December 25th, 2023"
+        assert result["journal_name"] == "Dec 25th, 2023"
     
     @pytest.mark.asyncio
     async def test_get_journal_page_without_children(self, mock_logseq_client):
         """Test getting journal page without child blocks."""
-        mock_page = {"uuid": "test-uuid", "originalName": "December 25th, 2023"}
+        mock_page = {"uuid": "test-uuid", "originalName": "Dec 25th, 2023"}
         mock_logseq_client.get_page.return_value = mock_page
         
         with patch("logseq_mcp_server.server.logseq_client", mock_logseq_client):
@@ -100,7 +100,7 @@ class TestGetJournalPageTool:
         assert result["success"] is True
         assert result["page"] == mock_page
         assert "blocks" not in result
-        assert result["journal_name"] == "December 25th, 2023"
+        assert result["journal_name"] == "Dec 25th, 2023"
         
         # Verify blocks were not fetched
         mock_logseq_client.get_page_blocks_tree.assert_not_called()
@@ -126,7 +126,7 @@ class TestGetJournalPageTool:
     @pytest.mark.asyncio
     async def test_get_journal_page_block_retrieval_failure(self, mock_logseq_client):
         """Test handling of block retrieval failure."""
-        mock_page = {"uuid": "test-uuid", "originalName": "December 25th, 2023"}
+        mock_page = {"uuid": "test-uuid", "originalName": "Dec 25th, 2023"}
         mock_logseq_client.get_page.return_value = mock_page
         mock_logseq_client.get_page_blocks_tree.side_effect = Exception("API error")
         
@@ -140,7 +140,7 @@ class TestGetJournalPageTool:
         assert result["success"] is True
         assert result["page"] == mock_page
         assert result["blocks"] == []
-        assert result["journal_name"] == "December 25th, 2023"
+        assert result["journal_name"] == "Dec 25th, 2023"
     
     @pytest.mark.asyncio
     async def test_get_journal_page_client_not_initialized(self):
