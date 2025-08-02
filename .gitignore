@@ -50,13 +50,15 @@ coverage.xml
 .pytest_cache/
 
 # Virtual environments
-.env
 .venv
-env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Environment files
+env/.env
+.env
 
 # IDEs
 .idea/
@@ -68,6 +70,7 @@ venv.bak/
 
 # Project specific
 *.log
+logs/
 .env.local
 .env.*.local
 uv.lock
@@ -75,3 +78,5 @@ src/logseq_mcp_server/_version.py
 
 #AI
 CLAUDE.md
+ARCHITECTURE.md
+PROJECT.md

@@ -7,13 +7,12 @@ name = "logseq-mcp-server"
 description = "MCP server for interacting with Logseq graphs"
 readme = "README.md"
 requires-python = ">=3.13"
-license = { text = "MIT" }
 authors = [{ name = "Your Name", email = "your.email@example.com" }]
 keywords = ["logseq", "mcp", "model-context-protocol"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
+    "Private :: Do Not Upload",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.13",
 ]
@@ -39,6 +38,7 @@ dev = [
 logseq-mcp = "logseq_mcp_server.__main__:main"
 
 [tool.setuptools]
+package-dir = {"" = "src"}
 packages = ["logseq_mcp_server"]
 
 [tool.setuptools.package-data]
