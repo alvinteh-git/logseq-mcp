@@ -274,6 +274,7 @@ async def handle_get_journal_page(arguments: dict[str, Any]) -> dict[str, Any]:
         # Check if page exists
         if page is None:
             logger.debug(f"Journal page '{journal_name}' not found")
+            logger.info(f"Tried to find journal page with name: '{journal_name}' for date input: '{date_input}'")
             return {"success": False, "page": None, "journal_name": journal_name}
 
         logger.debug(f"Retrieved journal page: {page.get('uuid')}")
@@ -283,7 +284,7 @@ async def handle_get_journal_page(arguments: dict[str, Any]) -> dict[str, Any]:
         if include_children and page.get("uuid"):
             try:
                 logger.debug("Getting blocks for journal page")
-                blocks = await logseq_client.get_page_blocks_tree(page["uuid"])
+                blocks = await logseq_client.get_page_blocks(journal_name)
                 return {
                     "success": True,
                     "page": page,
