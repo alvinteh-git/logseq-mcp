@@ -9,6 +9,9 @@ import json
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from mcp.types import TextContent
+
+from logseq_mcp_server.server import app
 
 # Skip all tests in this module for now
 pytestmark = pytest.mark.skip(

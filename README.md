@@ -266,7 +266,7 @@ mcp run src/logseq_mcp_server/server.py
 - `search_pages`: Search for pages by query
 
 #### Query Operations
-- `execute_query`: Execute Datalog queries
+- `execute_query`: Execute Datalog queries (supports optional input parameters for parameterized queries)
 
 ### Working with Journal Pages
 
@@ -277,8 +277,8 @@ The `get_journal_page` tool provides a convenient way to retrieve journal pages 
 The tool accepts dates in multiple formats:
 - **ISO format**: `"2023-12-25"`
 - **US format**: `"12/25/2023"`
-- **EU format**: `"25/12/2023"` 
-- **Pre-formatted**: `"December 25th, 2023"`
+- **EU format**: `"25/12/2023"`
+- **Abbreviated pre-formatted**: `"Dec 25th, 2023"`
 - **Python date/datetime objects** (when using the API directly)
 
 #### Example Usage
@@ -294,7 +294,7 @@ The tool accepts dates in multiple formats:
 
 // Get journal with blocks
 {
-  "tool": "get_journal_page", 
+  "tool": "get_journal_page",
   "arguments": {
     "date": "01/15/2024",
     "include_children": true
@@ -302,7 +302,30 @@ The tool accepts dates in multiple formats:
 }
 ```
 
-The tool automatically converts the provided date to Logseq's journal format (e.g., "January 15th, 2024") before fetching the page.
+The tool converts the provided date to Logseq's abbreviated journal format (e.g., `"Dec 25th, 2023"`) before fetching the page.
+
+### Executing Datalog Queries
+
+The `execute_query` tool runs Datalog queries against the graph. It also accepts an optional `inputs` array for parameterized queries.
+
+```json
+// Simple query
+{
+  "tool": "execute_query",
+  "arguments": {
+    "query": "[:find ?name :where [?p :block/name ?name]]"
+  }
+}
+
+// Parameterized query
+{
+  "tool": "execute_query",
+  "arguments": {
+    "query": "[:find ?b :in $ ?tag :where [?b :block/refs ?r] [?r :block/name ?tag]]",
+    "inputs": ["meeting"]
+  }
+}
+```
 
 ## Troubleshooting
 

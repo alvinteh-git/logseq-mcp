@@ -340,9 +340,11 @@ async def handle_execute_query(arguments: dict[str, Any]) -> dict[str, Any]:
 
     try:
         query = arguments.get("query", "")
+        inputs = arguments.get("inputs")
         logger.debug(f"Executing Datalog query: {query[:200]}...")
         results = await logseq_client.execute_query(
             query=arguments["query"],
+            inputs=inputs,
         )
         logger.debug(f"Query returned {len(results)} results")
         return {"success": True, "results": results, "count": len(results)}

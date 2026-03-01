@@ -322,17 +322,23 @@ class LogseqClient:
             logger.error(f"Search failed: {e}")
             return []
 
-    async def execute_query(self, query: str) -> list[dict[str, Any]]:
+    async def execute_query(
+        self, query: str, inputs: list[str] | None = None
+    ) -> list[dict[str, Any]]:
         """Execute a Datalog query.
 
         Args:
             query: Datalog query
+            inputs: Optional query input parameters
 
         Returns:
             Query results
         """
-        result = await self._request("logseq.DB.q", args=query)
+        args: Any = query
+        if inputs:
+            args = [query, *inputs]
+        result = await self._request("logseq.DB.q", args=args)
         # Handle different response formats
         if isinstance(result, list):
             return result
-        return result.get("results", [])
+        return result.get("results", []) if result else []

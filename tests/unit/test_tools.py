@@ -364,7 +364,8 @@ class TestQueryTools:
             )
 
             mock_client.execute_query.assert_called_once_with(
-                query="[:find ?p :where [?p :block/name]]"
+                query="[:find ?p :where [?p :block/name]]",
+                inputs=None,
             )
 
             assert result["success"] is True
