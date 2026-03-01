@@ -5,7 +5,6 @@ to match the actual MCP SDK API. The unit tests provide adequate coverage
 for now.
 """
 
-import json
 from unittest.mock import AsyncMock, patch
 
 import pytest

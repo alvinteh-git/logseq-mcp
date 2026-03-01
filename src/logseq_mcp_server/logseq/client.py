@@ -114,7 +114,7 @@ class LogseqClient:
                 exc_info=True,
             )
             raise
-        except Exception as e:
+        except Exception:
             logger.error(
                 f"Logseq API request failed: {action}",
                 extra={"request_data": request_data},

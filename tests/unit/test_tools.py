@@ -5,6 +5,17 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from mcp.types import Tool
 
+from logseq_mcp_server.server import (
+    handle_create_block,
+    handle_create_page,
+    handle_delete_block,
+    handle_execute_query,
+    handle_get_all_pages,
+    handle_get_page,
+    handle_list_tools,
+    handle_search_pages,
+    handle_update_block,
+)
 from logseq_mcp_server.tools.blocks import (
     create_block_tool,
     delete_block_tool,
@@ -17,16 +28,6 @@ from logseq_mcp_server.tools.pages import (
     search_pages_tool,
 )
 from logseq_mcp_server.tools.queries import execute_query_tool
-from logseq_mcp_server.server import (
-    handle_create_block,
-    handle_update_block,
-    handle_delete_block,
-    handle_create_page,
-    handle_get_page,
-    handle_get_all_pages,
-    handle_search_pages,
-    handle_execute_query,
-)
 
 
 @pytest.fixture
@@ -93,7 +94,7 @@ class TestBlockTools:
         }
 
         with patch("logseq_mcp_server.server.logseq_client", mock_client):
-            result = await handle_create_block(
+            await handle_create_block(
                 {"content": "Child content", "parent_block_id": "parent-uuid"}
             )
 
@@ -111,7 +112,7 @@ class TestBlockTools:
         properties = {"tag": "important", "priority": "high"}
 
         with patch("logseq_mcp_server.server.logseq_client", mock_client):
-            result = await handle_create_block(
+            await handle_create_block(
                 {
                     "content": "Block with props",
                     "page": "Test Page",
@@ -166,10 +167,13 @@ class TestBlockTools:
 
     @pytest.mark.asyncio
     async def test_delete_block(self, mock_client):
-        """Test deleting a block."""
+        """Test deleting a block when delete is enabled."""
         mock_client.delete_block.return_value = {"success": True}
 
-        with patch("logseq_mcp_server.server.logseq_client", mock_client):
+        with (
+            patch("logseq_mcp_server.server.DELETE_ENABLED", True),
+            patch("logseq_mcp_server.server.logseq_client", mock_client),
+        ):
             result = await handle_delete_block({"block_id": "block-uuid"})
 
             mock_client.delete_block.assert_called_once_with(block_id="block-uuid")
@@ -177,10 +181,13 @@ class TestBlockTools:
 
     @pytest.mark.asyncio
     async def test_delete_block_error(self, mock_client):
-        """Test delete_block error handling."""
+        """Test delete_block error handling when delete is enabled."""
         mock_client.delete_block.side_effect = Exception("Delete failed")
 
-        with patch("logseq_mcp_server.server.logseq_client", mock_client):
+        with (
+            patch("logseq_mcp_server.server.DELETE_ENABLED", True),
+            patch("logseq_mcp_server.server.logseq_client", mock_client),
+        ):
             result = await handle_delete_block({"block_id": "block-uuid"})
 
             assert result["success"] is False
@@ -241,9 +248,7 @@ class TestPageTools:
         mock_client.create_page.return_value = {"uuid": "page-uuid", "name": "new page"}
 
         with patch("logseq_mcp_server.server.logseq_client", mock_client):
-            result = await handle_create_page(
-                {"name": "New Page", "content": "Initial content"}
-            )
+            await handle_create_page({"name": "New Page", "content": "Initial content"})
 
             mock_client.create_page.assert_called_once_with(
                 name="New Page", content="Initial content"
@@ -394,3 +399,37 @@ class TestQueryTools:
 
             assert result["success"] is False
             assert "Invalid query syntax" in result["error"]
+
+
+class TestDeleteGate:
+    """Test delete_block opt-in gate."""
+
+    @pytest.mark.asyncio
+    async def test_list_tools_excludes_delete_when_disabled(self):
+        """delete_block must not appear in tool list when DELETE_ENABLED is False."""
+        with patch("logseq_mcp_server.server.DELETE_ENABLED", False):
+            tools = await handle_list_tools()
+            names = [t.name for t in tools]
+            assert "delete_block" not in names
+
+    @pytest.mark.asyncio
+    async def test_list_tools_includes_delete_when_enabled(self):
+        """delete_block must appear in tool list when DELETE_ENABLED is True."""
+        with patch("logseq_mcp_server.server.DELETE_ENABLED", True):
+            tools = await handle_list_tools()
+            names = [t.name for t in tools]
+            assert "delete_block" in names
+
+    @pytest.mark.asyncio
+    async def test_handle_delete_block_disabled_returns_error(self, mock_client=None):
+        """handle_delete_block returns an error dict without calling the client when disabled."""
+        client = AsyncMock()
+        with (
+            patch("logseq_mcp_server.server.DELETE_ENABLED", False),
+            patch("logseq_mcp_server.server.logseq_client", client),
+        ):
+            result = await handle_delete_block({"block_id": "some-uuid"})
+
+        assert result["success"] is False
+        assert "LOGSEQ_DELETE_ENABLED=true" in result["error"]
+        client.delete_block.assert_not_called()

@@ -8,10 +8,10 @@ import os
 import re
 import sys
 import typing
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from .utils.sanitizer import LogSanitizer
 
@@ -37,7 +37,7 @@ class PrivacyFilter(logging.Filter):
         self.mode = mode
         self.sanitizer = LogSanitizer()
 
-    def filter(self, record: logging.LogRecord) -> bool:
+    def filter(self, record: logging.LogRecord) -> bool:  # noqa: C901
         """Filter and sanitize log records based on mode.
 
         Args:
@@ -86,23 +86,19 @@ class PrivacyFilter(logging.Filter):
             # Sanitize extra fields - IMPORTANT: Use deep copies to avoid modifying original data
             if hasattr(record, "arguments") and getattr(record, "arguments", None):
                 # Deep copy to avoid modifying the original arguments
-                arguments = getattr(record, "arguments")
-                setattr(record, "arguments", copy.deepcopy(arguments))
-                setattr(
-                    record,
-                    "arguments",
-                    self.sanitizer.sanitize_dict(getattr(record, "arguments")),
-                )
+                arguments = record.arguments
+                record.arguments = copy.deepcopy(arguments)
+                record.arguments = self.sanitizer.sanitize_dict(record.arguments)
 
             if hasattr(record, "result") and isinstance(
                 getattr(record, "result", None), dict
             ):
                 # Deep copy the entire result to avoid modifying original data
-                result = getattr(record, "result")
-                setattr(record, "result", copy.deepcopy(result))
+                result = record.result
+                record.result = copy.deepcopy(result)
 
                 # Now we can safely sanitize the copied data
-                result = getattr(record, "result")
+                result = record.result
                 if "page" in result:
                     if (
                         isinstance(result["page"], dict)
@@ -127,7 +123,7 @@ class JSONFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         """Format the log record as JSON."""
         log_data: dict[str, Any] = {
-            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            "timestamp": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
@@ -185,13 +181,13 @@ def parse_size(size_str: str) -> int:
         return int(size_str)
 
 
-def setup_logging(
+def setup_logging(  # noqa: C901
     log_level: str = "INFO",
-    log_file: Optional[str] = None,
-    log_mode: Optional[str] = None,
-    max_file_size: Optional[int] = None,
+    log_file: str | None = None,
+    log_mode: str | None = None,
+    max_file_size: int | None = None,
     backup_count: int = 5,
-    retention_days: Optional[int] = None,
+    retention_days: int | None = None,
 ) -> None:
     """Configure logging for the MCP server.
 

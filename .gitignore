@@ -73,7 +73,6 @@ env/.env
 logs/
 .env.local
 .env.*.local
-uv.lock
 src/logseq_mcp_server/_version.py
 
 #AI

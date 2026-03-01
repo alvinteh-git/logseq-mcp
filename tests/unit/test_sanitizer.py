@@ -169,7 +169,7 @@ class TestLogSanitizer:
         # Check the actual hash for "uuid-1"
         import hashlib
 
-        hash_val = hashlib.sha256("uuid-1".encode()).hexdigest()[:6]
+        hash_val = hashlib.sha256(b"uuid-1").hexdigest()[:6]
         assert result["blocks"][0]["uuid"] == f"block_{hash_val}"
 
     def test_sanitize_dict_custom_rules(self, sanitizer):
