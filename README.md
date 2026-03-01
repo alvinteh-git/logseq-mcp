@@ -125,6 +125,10 @@ The setup wizard (`./deploy.sh`) will generate the configuration for you. If you
 }
 ```
 
+> **Security note**: Delete operations are disabled by default to prevent accidental or
+> AI-initiated data loss. Add `"LOGSEQ_DELETE_ENABLED": "true"` to the `env` block only
+> when you explicitly want the AI assistant to be able to delete blocks.
+
 **Important Notes**:
 - Replace ALL instances of `/path/to/logseq-mcp` with the actual absolute path to your cloned repository (in args AND env)
 - The `--directory` argument sets UV's working directory
@@ -133,6 +137,16 @@ The setup wizard (`./deploy.sh`) will generate the configuration for you. If you
 - The `LOGSEQ_MCP_PROJECT_ROOT` environment variable ensures logs are saved in the project directory
 - Ensure Logseq is running with the API server enabled before starting Claude Desktop
 - You may need to configure authentication if your Logseq API requires a token
+
+To enable the `delete_block` tool, add `LOGSEQ_DELETE_ENABLED` to the `env` block:
+
+```json
+"env": {
+  "LOGSEQ_API_HOST": "localhost",
+  "LOGSEQ_API_PORT": "12315",
+  "LOGSEQ_DELETE_ENABLED": "true"
+}
+```
 
 **Troubleshooting**:
 - If you see errors about cached code, run `uv cache clean` to clear UV's cache
@@ -256,7 +270,7 @@ mcp run src/logseq_mcp_server/server.py
 #### Block Operations
 - `create_block`: Create a new block in a page
 - `update_block`: Update an existing block's content or properties
-- `delete_block`: Delete a block
+- `delete_block`: Delete a block *(disabled by default; requires `LOGSEQ_DELETE_ENABLED=true`)*
 
 #### Page Operations
 - `create_page`: Create a new page

@@ -25,6 +25,9 @@ from .utils.date_converter import date_to_journal_format
 # Load environment variables
 load_dotenv("env/.env")
 
+# Gate delete operations behind an explicit opt-in flag
+DELETE_ENABLED = os.getenv("LOGSEQ_DELETE_ENABLED", "").lower() == "true"
+
 # Configure logging
 log_level = os.getenv("LOGSEQ_MCP_LOG_LEVEL", "INFO")
 log_file = os.getenv("LOGSEQ_MCP_LOG_FILE")
@@ -42,10 +45,9 @@ logseq_client: LogseqClient | None = None
 @app.list_tools()
 async def handle_list_tools() -> list[Tool]:
     """Return the list of available tools."""
-    return [
+    tools = [
         create_block_tool,
         update_block_tool,
-        delete_block_tool,
         create_page_tool,
         get_all_pages_tool,
         get_page_tool,
@@ -53,6 +55,9 @@ async def handle_list_tools() -> list[Tool]:
         search_pages_tool,
         execute_query_tool,
     ]
+    if DELETE_ENABLED:
+        tools.append(delete_block_tool)
+    return tools
 
 
 @app.call_tool()
@@ -153,6 +158,12 @@ async def handle_update_block(arguments: dict[str, Any]) -> dict[str, Any]:
 
 async def handle_delete_block(arguments: dict[str, Any]) -> dict[str, Any]:
     """Handle block deletion."""
+    if not DELETE_ENABLED:
+        return {
+            "success": False,
+            "error": "Delete operations are disabled. Set LOGSEQ_DELETE_ENABLED=true to enable.",
+        }
+
     if not logseq_client:
         raise RuntimeError("Logseq client not initialized")
 
@@ -366,6 +377,9 @@ async def initialize_logseq_client():
 
     logger.info(
         f"Logseq API configuration: host={host}, port={port}, token={'set' if token else 'not set'}"
+    )
+    logger.info(
+        f"Delete operations: {'enabled' if DELETE_ENABLED else 'disabled (set LOGSEQ_DELETE_ENABLED=true to enable)'}"
     )
 
     if not token:
