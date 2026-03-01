@@ -1,10 +1,10 @@
 """Unit tests for LogseqClient."""
 
-import json
 from unittest.mock import AsyncMock, Mock, patch
 
 import httpx
 import pytest
+
 from logseq_mcp_server.logseq.client import LogseqClient
 
 
@@ -130,7 +130,7 @@ class TestLogseqClient:
             with patch.object(
                 client, "create_block", new_callable=AsyncMock
             ) as mock_create_block:
-                result = await client.create_page("New Page", content="Initial content")
+                await client.create_page("New Page", content="Initial content")
 
                 # Verify page was created
                 assert mock_post.call_count == 1
@@ -251,7 +251,7 @@ class TestLogseqClient:
             client.client, "post", return_value=mock_response
         ) as mock_post:
             properties = {"tag": "important", "priority": "high"}
-            result = await client.create_block(
+            await client.create_block(
                 "Block with props", page="Test Page", properties=properties
             )
 
@@ -276,7 +276,7 @@ class TestLogseqClient:
         with patch.object(
             client.client, "post", return_value=mock_response
         ) as mock_post:
-            result = await client.update_block("block-uuid", content="Updated content")
+            await client.update_block("block-uuid", content="Updated content")
 
             # Verify the request was made with array format
             mock_post.assert_called_once_with(
