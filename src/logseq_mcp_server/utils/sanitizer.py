@@ -16,17 +16,17 @@ Example:
 import hashlib
 import re
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any
 
 
 class LogSanitizer:
     """Sanitizes sensitive data in log messages.
-    
+
     This class provides methods to sanitize various types of sensitive data
     that might appear in logs, including page names, content, file paths,
     block IDs, properties, and queries. The sanitization preserves some
     information for debugging while protecting user privacy.
-    
+
     Attributes:
         min_mask_length: Minimum string length required for masking.
                         Strings shorter than this are left unchanged.
@@ -41,9 +41,9 @@ class LogSanitizer:
         """
         self.min_mask_length = min_mask_length
 
-    def sanitize_page_name(self, name: Optional[str]) -> str:
+    def sanitize_page_name(self, name: str | None) -> str:
         """Partially mask page names to protect privacy.
-        
+
         Page names are masked by showing the first and last portions of the
         name while hiding the middle section. Very short names are left
         unchanged, and journal pages are completely replaced with a marker.
@@ -86,7 +86,7 @@ class LogSanitizer:
             end = name[-visible_chars:]
             return f"{start}***{end}"
 
-    def sanitize_content(self, content: Optional[str]) -> str:
+    def sanitize_content(self, content: str | None) -> str:
         """Replace content with length indicator.
 
         Examples:
@@ -99,7 +99,7 @@ class LogSanitizer:
         # Just return length info, no content
         return f"[content_{len(content)}_chars]"
 
-    def sanitize_block_id(self, block_id: Optional[str]) -> str:
+    def sanitize_block_id(self, block_id: str | None) -> str:
         """Anonymize block IDs while keeping them traceable.
 
         Examples:
@@ -113,7 +113,7 @@ class LogSanitizer:
         short_hash = hash_obj.hexdigest()[:6]
         return f"block_{short_hash}"
 
-    def sanitize_path(self, path: Optional[Union[str, Path]]) -> str:
+    def sanitize_path(self, path: str | Path | None) -> str:
         """Mask username and sensitive parts in file paths.
 
         Examples:
@@ -144,9 +144,7 @@ class LogSanitizer:
 
         return sanitized
 
-    def sanitize_properties(
-        self, properties: Optional[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def sanitize_properties(self, properties: dict[str, Any] | None) -> dict[str, Any]:
         """Redact sensitive property values.
 
         Keeps property keys but sanitizes values that might be sensitive.
@@ -198,7 +196,7 @@ class LogSanitizer:
 
         return sanitized
 
-    def sanitize_query(self, query: Optional[str]) -> str:
+    def sanitize_query(self, query: str | None) -> str:
         """Sanitize Datalog queries to hide search patterns.
 
         Examples:
@@ -212,10 +210,10 @@ class LogSanitizer:
         return f"[datalog_query_{len(query)}_chars]"
 
     def sanitize_dict(
-        self, data: Dict[str, Any], rules: Optional[Dict[str, str]] = None
-    ) -> Dict[str, Any]:
+        self, data: dict[str, Any], rules: dict[str, str] | None = None
+    ) -> dict[str, Any]:
         """Sanitize a dictionary based on rules.
-        
+
         Recursively sanitizes dictionary values based on a set of rules that
         map dictionary keys to sanitization methods. Handles nested dictionaries
         and lists of dictionaries. Non-sensitive data is preserved as-is.

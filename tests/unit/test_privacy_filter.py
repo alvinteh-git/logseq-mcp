@@ -2,9 +2,10 @@
 
 import copy
 import logging
+
 import pytest
 
-from logseq_mcp_server.logging_config import PrivacyFilter, LoggingMode
+from logseq_mcp_server.logging_config import LoggingMode, PrivacyFilter
 
 
 class TestPrivacyFilter:

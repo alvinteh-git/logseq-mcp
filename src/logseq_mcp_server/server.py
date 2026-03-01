@@ -285,7 +285,9 @@ async def handle_get_journal_page(arguments: dict[str, Any]) -> dict[str, Any]:
         # Check if page exists
         if page is None:
             logger.debug(f"Journal page '{journal_name}' not found")
-            logger.info(f"Tried to find journal page with name: '{journal_name}' for date input: '{date_input}'")
+            logger.info(
+                f"Tried to find journal page with name: '{journal_name}' for date input: '{date_input}'"
+            )
             return {"success": False, "page": None, "journal_name": journal_name}
 
         logger.debug(f"Retrieved journal page: {page.get('uuid')}")

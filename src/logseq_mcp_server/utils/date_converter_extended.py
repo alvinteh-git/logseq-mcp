@@ -2,7 +2,7 @@
 
 from datetime import date, datetime
 
-from .date_converter import date_to_journal_format, journal_format_to_date
+from .date_converter import date_to_journal_format
 
 
 def date_to_journal_format_full_month(input_date: str | date | datetime) -> str:
